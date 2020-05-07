@@ -34,7 +34,7 @@ LABEL summary="$SUMMARY" \
       com.cloudify.deployments-dir="${APP_ROOT}/src" \
       com.cloudify.dev-mode.port="DEBUG_PORT:5858"\
       com.cloudify.component="rh-$NAME$PHP_VERSION-container" \
-      name="kubespheredev/$NAME-$PHP_VERSION-centos7" \
+      name="littlezo/$NAME-$PHP_VERSION-centos7" \
       version="$PHP_VERSION" \
       help="For more information visit https://github.com/littlezo/k8s-php-s2i.git" \
       usage="s2i build https://github.com/littlezo/s2i-php-container.git --context-dir=${PHP_VERSION}/test/test-app centos/${NAME}-${PHP_VER_SHORT}-centos7 sample-server" \

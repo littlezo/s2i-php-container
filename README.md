@@ -29,7 +29,7 @@ To build a Node.JS image, choose either the CentOS or RHEL based image:
     This image is available on DockerHub. To download it run:
 
     ```
-    $ docker pull kubespheredev/nodejs-8-centos7
+    $ docker pull littlezo/nodejs-8-centos7
     ```
 
     To build a Node.JS image from scratch run:

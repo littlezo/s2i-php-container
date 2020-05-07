@@ -9,7 +9,7 @@ fi
 export DOCUMENTROOT=${DOCUMENTROOT:-/}
 
 run_php() {
-  echo -e "Environment: \n\tDEV_MODE=${DEV_MODE}\n\tNODE_ENV=${NODE_ENV}\n\tDEBUG_PORT=${DEBUG_PORT}"
+  echo -e "Environment: \n\tDEV_MODE=${DEV_MODE}\n\tDEBUG_PORT=${DEBUG_PORT}"
   # 常见框架启动方法
   if [ -f think ]; then
       echo "---> 识别到是 thinkphp 项目 正在启动中..."

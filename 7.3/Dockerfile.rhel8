@@ -1,4 +1,4 @@
-FROM kubespheredev/s2i-base-rhel8
+FROM littlezo/s2i-base-rhel8
 
 # This image provides a Node.JS environment you can use to run your Node.JS
 # applications.

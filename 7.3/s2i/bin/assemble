@@ -49,7 +49,7 @@ if [ -f composer.json ]; then
     composer config -g repositories.packagist composer $COMPOSER_MIRROR
   else
     echo "---> Change the repo  https://mirrors.aliyun.com/composer ..."
-    composer.phar config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+    composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
   fi
 
   # Install App dependencies using Composer
