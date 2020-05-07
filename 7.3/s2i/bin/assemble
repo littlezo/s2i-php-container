@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+
+source ${PHP_CONTAINER_SCRIPTS_PATH}/common.sh
+
+shopt -s dotglob
+echo "---> Installing application source ..."
+mv /tmp/src/* ./
+
+# Fix source directory permissions
+fix-permissions ./
+fix-permissions ${PHP_SYSCONF_PATH}
+
+# If the 'php-centos7' assemble script is executed with the '-h' flag, print the usage.
+if [[ "$1" == "-h" ]]; then
+	exec /usr/libexec/s2i/usage
+fi
+
+# Default php.ini configuration values, all taken
+# from php defaults.
+export DB_HOST=${DB_HOST:-localhost}
+export DB_USER=${DB_USER:-root}
+export DB_PASSWORD=${DB_PASSWORD:-password}
+export REDIS_HOST=${REDIS_HOST:-localhost}
+export REDIS_USER=${REDIS_USER:-""}
+export REDIS_PASSWORD=${REDIS_PASSWORD:-""}
+export DISABLE_FUNCTIONS=${DISABLE_FUNCTIONS:-exec}
+export PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT:-128M}
+export ERROR_REPORTING=${ERROR_REPORTING:-E_ALL & ~E_NOTICE}
+export DISPLAY_ERRORS=${DISPLAY_ERRORS:-OFF}
+export DISPLAY_STARTUP_ERRORS=${DISPLAY_STARTUP_ERRORS:-OFF}
+export UPLOAD_MAX_FILESIZE=${UPLOAD_MAX_FILESIZE:-200M}
+export TIMEZONE=${TIMEZONE:-Asia/Shanghai}
+
+export PHPRC=${PHPRC:-${PHP_SYSCONF_PATH}/php.ini}
+export PHP_INI_SCAN_DIR=${PHP_INI_SCAN_DIR:-${PHP_SYSCONF_PATH}/php.d}
+
+envsubst < /vsoole/app/etc/php.ini.template > ${PHP_SYSCONF_PATH}/php.ini
+
+
+if [ -f composer.json ]; then
+  echo "Found 'composer.json', installing dependencies using composer... "
+
+  # Change the repo mirror if provided
+  # Change the repo mirror if provided
+  if [ -n "$COMPOSER_MIRROR" ]; then
+    echo "---> Change the repo  $COMPOSER_MIRROR ..."
+    composer config -g repositories.packagist composer $COMPOSER_MIRROR
+  else
+    echo "---> Change the repo  https://mirrors.aliyun.com/composer ..."
+    composer.phar config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+  fi
+
+  # Install App dependencies using Composer
+  composer install --no-interaction --no-ansi  --no-dev --optimize-autoloader
+
+  if [ ! -f composer.lock ]; then
+    echo -e "\nConsider adding a 'composer.lock' file into your source repository.\n"
+  fi
+fi
+
+echo "---> Building and installing application from source..."
+
+# Fix source directory permissions
+fix-permissions ./

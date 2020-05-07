@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e
+
+if [ -e "${PHP_CONTAINER_SCRIPTS_PATH}/common.sh" ]; then
+  echo "---> source common..."
+  source ${PHP_CONTAINER_SCRIPTS_PATH}/common.sh
+fi
+export DOCUMENTROOT=${DOCUMENTROOT:-/}
+
+run_php() {
+  echo -e "Environment: \n\tDEV_MODE=${DEV_MODE}\n\tNODE_ENV=${NODE_ENV}\n\tDEBUG_PORT=${DEBUG_PORT}"
+  # 常见框架启动方法
+  if [ -f think ]; then
+      echo "---> 识别到是 thinkphp 项目 正在启动中..."
+      exec php think run -H 0.0.0.0 -p 9501
+  elif [ -f bin/hyperf.php ]; then
+      echo "---> 识别到是 hyperf 项目 正在启动中..."
+      exec php bin/hyperf.php start
+  elif [ -f bin/swoft ]; then
+      echo "---> 识别到是 swoft 项目 正在启动中..."
+      exec php ./bin/swoft http:start
+  elif [ -f public/index.php ]; then
+      echo "---> 识别到是普通PHP项目 运行路径 public 正在启动中..."
+      exec php -S 0.0.0.0:9501 -t public/
+  elif [ -f index.php ]; then
+      echo "---> 识别到是普通PHP项目 正在启动中..."
+      exec php -S 0.0.0.0:9501
+  else
+      echo "---> 启动失败无法识别请确认是php项目..."
+      echo "---> 如果是PHP项目请使用自定义运行命令方式构建..."
+  fi
+}
+#Set the debug port to 5858 by default.
+if [ -z "$DEBUG_PORT" ]; then
+  export DEBUG_PORT=5858
+fi
+
+# Set the environment to development by default.
+if [ -z "$DEV_MODE" ]; then
+  export DEV_MODE=false
+fi
+
+run_php
