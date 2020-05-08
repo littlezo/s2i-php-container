@@ -56,14 +56,8 @@ prepare() {
   fi
   # TODO: STI build require the application is a valid 'GIT' repository, we
   # should remove this restriction in the future when a file:// is used.
-  if [[ $1 == 'app' ]]; then
-      pushd ${test_dir}/test-app >/dev/null
-  elif [[ $1 == 'hw' ]]; then
-      pushd ${test_dir}/test-hw >/dev/null
-  else
-      echo "Please specify a valid test application"
-      exit 1
-  fi
+  info "Build the test application image"
+  pushd ${test_dir}/test-app >/dev/null
   git init
   git config user.email "build@localhost" && git config user.name "builder"
   git add -A && git commit --no-gpg-sign -m "Sample commit"
@@ -71,12 +65,24 @@ prepare() {
 }
 
 run_test_application() {
-  docker run --user=100001 --rm --cidfile=${cid_file} -p ${test_port}:${test_port} ${IMAGE_NAME}-testapp
+  run_args=${CONTAINER_ARGS:-}
+  docker run --user=100001 --rm ${run_args} --cidfile=${cid_file} ${IMAGE_NAME}-testapp
 }
 
 kill_test_application() {
 	docker kill $(cat $cid_file)
 	rm $cid_file
+}
+
+cleanup_test_app() {
+  info "Cleaning up the test application"
+  if [ -f $cid_file ]; then
+    if container_exists; then
+      docker stop $(cat $cid_file)
+      docker rm $(cat $cid_file)
+    fi
+    rm $cid_file
+  fi
 }
 
 cleanup() {
@@ -105,6 +111,7 @@ wait_for_cid() {
   local sleep_time=1
   local attempt=1
   local result=1
+  info "Waiting for application container to start"
   while [ $attempt -le $max_attempts ]; do
     [ -f $cid_file ] && [ -s $cid_file ] && break
     echo "Waiting for container start..."
@@ -123,33 +130,11 @@ test_docker_run_usage() {
   docker run --rm ${IMAGE_NAME} &>/dev/null
 }
 
-test_connection() {
-  echo "Testing HTTP connection..."
-  local max_attempts=10
-  local sleep_time=1
-  local attempt=1
-  local result=1
-  while [ $attempt -le $max_attempts ]; do
-    echo "Sending GET request to http://$(container_ip):${test_port}/"
-    response_code=$(curl -s -w %{http_code} -o /dev/null http://$(container_ip):${test_port}/)
-    status=$?
-    if [ $status -eq 0 ]; then
-      if [ $response_code -eq 200 ]; then
-        result=0
-      fi
-      break
-    fi
-    attempt=$(( $attempt + 1 ))
-    sleep $sleep_time
-  done
-  return $result
-}
-
 test_scl_usage() {
   local run_cmd="$1"
   local expected="$2"
 
-  echo "Testing the image SCL enable ..."
+  info "Testing the image SCL enable"
   out=$(docker run --rm ${IMAGE_NAME} /bin/bash -c "${run_cmd}")
   if ! echo "${out}" | grep -q "${expected}"; then
     echo "ERROR[/bin/bash -c "${run_cmd}"] Expected '${expected}', got '${out}'"
@@ -167,20 +152,47 @@ test_scl_usage() {
   fi
 }
 
-validate_default_value() {
-  local label=$1
-
-  IFS=':' read -a label_vals <<< $(docker inspect -f "{{index .Config.Labels \"$label\"}}" ${IMAGE_NAME}) 
-  label_var=${label_vals[0]}
-  default_label_val=${label_vals[1]}
-
-  actual_label_val=$(docker run --rm $IMAGE_NAME /bin/bash -c "echo $"$label_var)
-
-  if [ "$actual_label_val" != "$default_label_val" ]; then
-    echo "ERROR default value for $label with environment variable $label_var; Expected $default_label_val, got $actual_label_val"
-    return 1
-  fi
+test_connection() {
+  local check_port=$1 ; shift
+  local check_protocol=${1:-http}
+  cat $cid_file
+  info "Testing the HTTP connection (${check_protocol}://$(container_ip):${check_port})"
+  local max_attempts=10
+  local sleep_time=1
+  local attempt=1
+  local result=1
+  while [ $attempt -le $max_attempts ]; do
+    response_code=$(curl -s -w %{http_code} -o /dev/null -k ${check_protocol}://$(container_ip):${check_port}/)
+    status=$?
+    if [ $status -eq 0 ]; then
+      if [ $response_code -eq 200 ]; then
+        result=0
+        break
+      fi
+    fi
+    attempt=$(( $attempt + 1 ))
+    sleep $sleep_time
+  done
+  return $result
 }
+
+test_application() {
+  # Verify that the HTTP connection can be established to test application container
+  run_test_application &
+
+  # Wait for the container to write it's CID file
+  wait_for_cid
+
+  test_scl_usage "php --version" "$VERSION"
+  check_result $?
+
+  test_connection ${test_port}
+  check_result $?
+
+  cleanup_test_app
+}
+
+s2i_args="--pull-policy=never"
 
 # Build the application image twice to ensure the 'save-artifacts' and
 # 'restore-artifacts' scripts are working properly
@@ -197,38 +209,11 @@ check_result $?
 test_docker_run_usage
 check_result $?
 
-# Verify that the HTTP connection can be established to test application container
-run_test_application app &
+# Test application with default uid
+test_application
 
-# Wait for the container to write it's CID file
-wait_for_cid
+# Test application with random uid
+CONTAINER_ARGS="--user 12345" test_application
 
-test_connection
-check_result $?
-
-kill_test_application
-
-
-# Verify that the HTTP connection can be established to test application container
-run_test_application app &
-wait_for_cid
-
-test_connection
-check_result $?
-
-kill_test_application
-
-
-echo "Testing the development image build: s2i build -e \"DEV_MODE=true\")"
-run_s2i_build "-e DEV_MODE=true"
-check_result $?
-
-# Verify that the HTTP connection can be established to test application container
-run_test_application app &
-wait_for_cid
-
-test_connection
-check_result $?
-
-echo "Success!"
+echo "All tests finished successfully."
 cleanup
