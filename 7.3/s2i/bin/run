@@ -8,6 +8,20 @@ if [ -e "${PHP_CONTAINER_SCRIPTS_PATH}/common.sh" ]; then
 fi
 export DOCUMENTROOT=${DOCUMENTROOT:-/}
 
+# Default php.ini configuration values, all taken
+# from php defaults.
+export DISABLE_FUNCTIONS=${DISABLE_FUNCTIONS:-exec}
+export PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT:-128M}
+export ERROR_REPORTING=${ERROR_REPORTING:-E_ALL & ~E_NOTICE}
+export DISPLAY_ERRORS=${DISPLAY_ERRORS:-OFF}
+export DISPLAY_STARTUP_ERRORS=${DISPLAY_STARTUP_ERRORS:-OFF}
+export UPLOAD_MAX_FILESIZE=${UPLOAD_MAX_FILESIZE:-200M}
+export TIMEZONE=${TIMEZONE:-Asia/Shanghai}
+
+export PHPRC=${PHPRC:-${PHP_SYSCONF_PATH}/php.ini}
+
+envsubst < /vsoole/app/etc/php.ini.template > ${PHP_SYSCONF_PATH}/php.ini、
+
 run_php() {
   echo -e "Environment: \n\tDEV_MODE=${DEV_MODE}\n\tDEBUG_PORT=${DEBUG_PORT}"
   # 常见框架启动方法
