@@ -92,6 +92,7 @@ cleanup() {
       fi
   fi
   if image_exists ${IMAGE_NAME}-testapp; then
+      docker rmi -f ${IMAGE_NAME}
       docker rmi -f ${IMAGE_NAME}-testapp
   fi
   rm -rf ${test_dir}/test-app/.git
@@ -192,6 +193,12 @@ test_application() {
   cleanup_test_app
 }
 
+# 清理 none 镜像
+cleanup_tag_none(){
+  docker stop $(docker ps -a | grep "Exited" | awk '{print $1 }')
+  docker rm $(docker ps -a | grep "Exited" | awk '{print $1 }')
+  docker rmi $(docker images | grep "none" | awk '{print $3}')
+}
 s2i_args="--pull-policy=never"
 
 # Build the application image twice to ensure the 'save-artifacts' and
@@ -215,5 +222,7 @@ test_application
 # Test application with random uid
 CONTAINER_ARGS="--user 12345" test_application
 
+cleanup_tag_none
 echo "All tests finished successfully."
 cleanup
+echo "run  “make build” Execute build"

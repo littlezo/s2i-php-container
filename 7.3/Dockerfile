@@ -82,6 +82,7 @@ ENV PHP_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/php \
     STI_SCRIPTS_URL=image:///usr/libexec/s2i \
     STI_SCRIPTS_PATH=/usr/libexec/s2i \
     PHP_SYSCONF_PATH=/etc/opt/rh/rh-php73 \
+    S2I_CONFIG_PATH=/vsoole/app/src/deploy.json \
     SCL_ENABLED=rh-php73
 
 ENV BASH_ENV=${APP_ROOT}/etc/scl_enable \
