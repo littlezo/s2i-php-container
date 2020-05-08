@@ -7,7 +7,7 @@ metadata:
   annotations:
       descriptionCN: "php swoole 应用的构建器模版。"
       descriptionEN: "php swoole available as container is a base platform"
-      devops.kubesphere.io/s2i-template-url: https://github.com/littlezo/k8s-php-s2i
+      devops.kubesphere.io/s2i-template-url: https://github.com/littlezo/s2i-php-container/tree/master/deploy
   name: php-73-s2i
 spec:
   containerInfo:
