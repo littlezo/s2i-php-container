@@ -16,19 +16,6 @@ spec:
   defaultBaseImage: littlezo/php-7.3-centos7:7.3 # 默认使用的构建器镜像 (可替换为自定义的镜像)
   version: 1.0.0 # 构建器模版的版本
   environment:
-    description: Environment is a map of environment variables to be passed to the image.
-    items:
-      description: EnvironmentSpec specifies a single environment variable.
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-      required:
-      - name
-      - value
-      type: object
-    type: array
     - key: DB_HOST
       type: string
       description: "数据库地址"
