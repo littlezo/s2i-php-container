@@ -22,9 +22,9 @@ a database-enabled webpage with PHP is fairly simple. The most common use of PHP
 is probably as a replacement for CGI scripts.
 
 This container image includes an npm utility, so users can use it to install JavaScript
-modules for their web applications. There is no guarantee for any specific npm or nodejs
+modules for their web applications. There is no guarantee for any specific npm or php
 version, that is included in the image; those versions can be changed anytime and
-the nodejs itself is included just to make the npm work.
+the php itself is included just to make the npm work.
 
 Usage
 ---------------------

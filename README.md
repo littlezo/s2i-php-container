@@ -1,17 +1,17 @@
-NodeJS container images
+PHP container images
 ====================
 
 This repository contains the source for building various versions of
-the Node.JS application as a reproducible container image using
+the PHP application as a reproducible container image using
 [source-to-image](https://github.com/kubesphere/s2ioperator).
 Users can choose between RHEL and CentOS based builder images.
 The resulting image can be run using [Docker](http://docker.io).
 
 Versions
 ---------------
-Node.JS versions currently provided are:
-* [NodeJS 6](6)
-* [NodeJS 8](8)
+PHP versions currently provided are:
+* [PHP 5.6](5.6)
+* [PHP 7.3](7.3)
 
 RHEL versions currently supported are:
 * RHEL7
@@ -22,70 +22,70 @@ CentOS versions currently supported are:
 
 Installation
 ---------------
-To build a Node.JS image, choose either the CentOS or RHEL based image:
+To build a PHP image, choose either the CentOS or RHEL based image:
 
 *  **CentOS based image**
 
     This image is available on DockerHub. To download it run:
 
     ```
-    $ docker pull littlezo/nodejs-8-centos7
+    $ docker pull littlezo/php-8-centos7
     ```
 
-    To build a Node.JS image from scratch run:
+    To build a PHP image from scratch run:
 
     ```
-    $ git clone --recursive https://github.com/kubesphere/s2i-nodejs-container.git
-    $ cd s2i-nodejs-container
+    $ git clone --recursive https://github.com/littlezo/s2i-php-container.git
+    $ cd s2i-php-container
     $ git submodule update --init
-    $ make build TARGET=centos7 VERSIONS=8
+    $ make build TARGET=centos7 VERSIONS=7.3
     ```
 
 **Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed
-on all provided versions of Node.JS.**
+on all provided versions of PHP.**
 
 
 Usage
 ---------------------------------
 
-For information about usage of Dockerfile for NodeJS 6,
-see [usage documentation](6/README.md).
-For information about usage of Dockerfile for NodeJS 8,
-see [usage documentation](8/README.md).
+For information about usage of Dockerfile for PHP 5.6,
+see [usage documentation](5.6/README.md).
+For information about usage of Dockerfile for PHP 7.3,
+see [usage documentation](7.3/README.md).
 
 Test
 ---------------------
 This repository also provides a [S2I](https://github.com/kubesphere/s2ioperator) test framework,
-which launches tests to check functionality of a simple Node.JS application built on top of the s2i-nodejs image.
+which launches tests to check functionality of a simple PHP application built on top of the s2i-php image.
 
-Users can choose between testing a Node.JS test application based on a RHEL or CentOS image.
+Users can choose between testing a PHP test application based on a RHEL or CentOS image.
 
 *  **RHEL based image**
 
-    To test a RHEL7 based Node.JS image, you need to run the test on a properly
+    To test a RHEL7 based PHP image, you need to run the test on a properly
     subscribed RHEL machine.
 
     ```
-    $ cd s2i-nodejs-container
+    $ cd s2i-php-container
     $ git submodule update --init
-    $ make test TARGET=rhel7 VERSIONS=8
+    $ make test TARGET=rhel7 VERSIONS=7.3
     ```
 
 *  **CentOS based image**
 
     ```
-    $ cd s2i-nodejs-container
+    $ cd s2i-php-container
     $ git submodule update --init
-    $ make test TARGET=centos7 VERSIONS=8
+    $ make test TARGET=centos7 VERSIONS=7.3
     ```
 
 **Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed
-on all provided versions of Node.JS.**
+on all provided versions of PHP.**
 
 
 Repository organization
 ------------------------
-* **`<nodejs-version>`**
+* **`<php-version>`**
 
     * **Dockerfile**
 
@@ -122,11 +122,11 @@ Repository organization
     * **`test/`**
 
         This folder contains the [S2I](https://github.com/kubesphere/s2ioperator)
-        test framework with simple Node.JS echo server.
+        test framework with simple PHP echo server.
 
         * **`test-app/`**
 
-            A simple Node.JS echo server used for testing purposes by the [S2I](https://github.com/kubesphere/s2ioperator) test framework.
+            A simple PHP echo server used for testing purposes by the [S2I](https://github.com/kubesphere/s2ioperator) test framework.
 
         * **run**
 

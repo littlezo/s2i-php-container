@@ -1,6 +1,6 @@
 FROM littlezo/s2i-base-rhel8
 
-# This image provides a Node.JS environment you can use to run your Node.JS
+# This image provides a PHP environment you can use to run your PHP
 # applications.
 
 EXPOSE 8080
@@ -14,42 +14,42 @@ EXPOSE 8080
 # Environment:
 # * $NPM_RUN - Select an alternate / custom runtime mode, defined in your package.json files' scripts section (default: npm run "start").
 # Expose ports:
-# * 8080 - Unprivileged port used by nodejs application
+# * 8080 - Unprivileged port used by php application
 
-ENV NODEJS_VERSION=10 \
+ENV php_VERSION=10 \
     NPM_RUN=start \
-    NAME=nodejs \
+    NAME=php \
     NPM_CONFIG_PREFIX=$HOME/.npm-global \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH
 
-ENV SUMMARY="Platform for building and running Node.js $NODEJS_VERSION applications" \
-    DESCRIPTION="Node.js $NODEJS_VERSION available as container is a base platform for \
-building and running various Node.js $NODEJS_VERSION applications and frameworks. \
-Node.js is a platform built on Chrome's JavaScript runtime for easily building \
-fast, scalable network applications. Node.js uses an event-driven, non-blocking I/O model \
+ENV SUMMARY="Platform for building and running PHP $php_VERSION applications" \
+    DESCRIPTION="PHP $php_VERSION available as container is a base platform for \
+building and running various PHP $php_VERSION applications and frameworks. \
+PHP is a platform built on Chrome's JavaScript runtime for easily building \
+fast, scalable network applications. PHP uses an event-driven, non-blocking I/O model \
 that makes it lightweight and efficient, perfect for data-intensive real-time applications \
 that run across distributed devices."
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="Node.js $NODEJS_VERSION" \
+      io.k8s.display-name="PHP $php_VERSION" \
       io.kubesphere.expose-services="8080:http" \
-      io.kubesphere.tags="builder,$NAME,${NAME}${NODEJS_VERSION}" \
+      io.kubesphere.tags="builder,$NAME,${NAME}${php_VERSION}" \
       io.kubesphere.s2i.scripts-url="image:///usr/libexec/s2i" \
       io.s2i.scripts-url="image:///usr/libexec/s2i" \
       com.yunify.dev-mode="DEV_MODE:false" \
       com.yunify.deployments-dir="${APP_ROOT}/src" \
       com.yunify.dev-mode.port="DEBUG_PORT:5858" \
-      com.yunify.component="${NAME}-${NODEJS_VERSION}-container" \
-      name="rhel8/$NAME-$NODEJS_VERSION" \
+      com.yunify.component="${NAME}-${php_VERSION}-container" \
+      name="rhel8/$NAME-$php_VERSION" \
       version="1" \
       maintainer="kubesphere.io <kubesphere@yunify.com>" \
-      help="For more information visit https://github.com/kubesphere/s2i-nodejs-container" \
-      usage="s2i build <SOURCE-REPOSITORY> rhel8/$NAME-$NODEJS_VERSION:latest <APP-NAME>"
+      help="For more information visit https://github.com/littlezo/s2i-php-container" \
+      usage="s2i build <SOURCE-REPOSITORY> rhel8/$NAME-$php_VERSION:latest <APP-NAME>"
 
-RUN yum -y module enable nodejs:$NODEJS_VERSION && \
-    INSTALL_PKGS="nodejs npm nodejs-nodemon nss_wrapper" && \
+RUN yum -y module enable php:$php_VERSION && \
+    INSTALL_PKGS="php npm php-nodemon nss_wrapper" && \
     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
     yum remove -y $INSTALL_PKGS && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
