@@ -1,3 +1,0 @@
-; Enable swoole extension module
-extension=swoole
-swoole.use_shortname = 'Off'

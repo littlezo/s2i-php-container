@@ -8,12 +8,12 @@ metadata:
       descriptionCN: "php swoole 应用的构建器模版。"
       descriptionEN: "php swoole available as container is a base platform"
       devops.kubesphere.io/s2i-template-url: https://github.com/littlezo/s2i-php-container/tree/master/deploy
-  name: php-73-centos8
+  name: php-80-centos8
 spec:
   containerInfo:
-    - builderImage: littleof/php-73-centos8:7.3
+    - builderImage: littleof/php-80-centos8:8.0
   codeFramework: php # 代码框架类型
-  defaultBaseImage: littleof/php-73-centos8:7.3 # 默认使用的构建器镜像 (可替换为自定义的镜像)
+  defaultBaseImage: littleof/php-7.3-centos8:8.0 # 默认使用的构建器镜像 (可替换为自定义的镜像)
   version: 1.0.0 # 构建器模版的版本
   environment:
     - key: DB_HOST

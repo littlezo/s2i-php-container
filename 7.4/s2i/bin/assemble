@@ -20,6 +20,11 @@ if [ -f composer.json ]; then
   echo "Found 'composer.json', installing dependencies using composer... "
 
   # Change the repo mirror if provided
+  if [ -n "$COMPOSER_ROLLBACK" ]; then
+    echo "---> composer rollback  $COMPOSER_ROLLBACK ..."
+     composer self-update –1
+  fi
+
   # Change the repo mirror if provided
   if [ -n "$COMPOSER_MIRROR" ]; then
     echo "---> Change the repo  $COMPOSER_MIRROR ..."
@@ -28,8 +33,7 @@ if [ -f composer.json ]; then
     echo "---> Change the repo  https://mirrors.aliyun.com/composer ..."
     composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
   fi
-#   todo 零时降级
-  composer self-update –1
+
   # Install App dependencies using Composer
   composer install --no-interaction --no-ansi  --no-dev --optimize-autoloader
 

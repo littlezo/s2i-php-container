@@ -10,14 +10,17 @@ The resulting image can be run using [Docker](http://docker.io).
 Versions
 ---------------
 PHP versions currently provided are:
-* [PHP 5.6](5.6)
 * [PHP 7.3](7.3)
+* [PHP 7.4](7.4)
+* [PHP 8.0](8.0)
 
 RHEL versions currently supported are:
 * RHEL7
+* RHEL8
 
 CentOS versions currently supported are:
 * CentOS7
+* CentOS8
 
 
 Installation
@@ -29,7 +32,7 @@ To build a PHP image, choose either the CentOS or RHEL based image:
     This image is available on DockerHub. To download it run:
 
     ```
-    $ docker pull littlezo/php-8-centos7
+    $ docker pull littleof/php-80-centos8:8.0
     ```
 
     To build a PHP image from scratch run:
@@ -38,7 +41,7 @@ To build a PHP image, choose either the CentOS or RHEL based image:
     $ git clone --recursive https://github.com/littlezo/s2i-php-container.git
     $ cd s2i-php-container
     $ git submodule update --init
-    $ make build TARGET=centos7 VERSIONS=7.3
+    $ make build TARGET=centos8 VERSIONS=7.4
     ```
 
 **Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed
@@ -47,11 +50,12 @@ on all provided versions of PHP.**
 
 Usage
 ---------------------------------
-
-For information about usage of Dockerfile for PHP 5.6,
-see [usage documentation](5.6/README.md).
 For information about usage of Dockerfile for PHP 7.3,
 see [usage documentation](7.3/README.md).
+For information about usage of Dockerfile for PHP 7.4,
+see [usage documentation](7.4/README.md).
+For information about usage of Dockerfile for PHP 8.0,
+see [usage documentation](8.0/README.md).
 
 Test
 ---------------------
@@ -68,7 +72,7 @@ Users can choose between testing a PHP test application based on a RHEL or CentO
     ```
     $ cd s2i-php-container
     $ git submodule update --init
-    $ make test TARGET=rhel7 VERSIONS=7.3
+    $ make test TARGET=rhel8 VERSIONS=7.4
     ```
 
 *  **CentOS based image**
@@ -76,7 +80,7 @@ Users can choose between testing a PHP test application based on a RHEL or CentO
     ```
     $ cd s2i-php-container
     $ git submodule update --init
-    $ make test TARGET=centos7 VERSIONS=7.3
+    $ make test TARGET=centos8 VERSIONS=7.4
     ```
 
 **Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed

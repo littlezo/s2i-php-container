@@ -1,6 +1,6 @@
 # Include common Makefile code.
 BASE_IMAGE_NAME = php
-VERSIONS = 5.6 7.3
+VERSIONS = 7.3 7.4 8.0
 KUBESPHERE_NAMESPACES =
 
 # HACK:  Ensure that 'git pull' for old clones doesn't cause confusion.

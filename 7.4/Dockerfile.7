@@ -1,0 +1,112 @@
+FROM littleof/s2i-base-centos7
+
+#此镜像提供了一个PHP环境，可用于运行PHP 应用程序。
+
+# Todo 等待有时间在处理
+EXPOSE 9080
+EXPOSE 9443
+
+ENV NAME=php \
+    PHP_VERSION=7.4 \
+    PHP_VER_SHORT=74 \
+    SWOOLE_VERSION=4.5.9 \
+    PHPREDIS_VERSION=5.3.2 \
+    PATH=$PATH:/opt/rh/rh-php74/root/usr/bin
+
+ENV SUMMARY="Platform for building and running PHP ${PHP_VERSION} applications" \
+    DESCRIPTION="PHP ${PHP_VERSION} available as container is a base platform for \
+    building and running various PHP ${PHP_VERSION} applications and frameworks. \
+    PHP is an HTML-embedded scripting language. PHP attempts to make it easy for developers \
+    to write dynamically generated web pages. PHP also offers built-in database integration \
+    for several commercial and non-commercial database management systems, so writing \
+    a database-enabled webpage with PHP is fairly simple. The most common use of PHP coding \
+    is probably as a replacement for CGI scripts."
+
+LABEL summary="$SUMMARY" \
+    description="$DESCRIPTION" \
+    io.k8s.description="$DESCRIPTION" \
+    io.k8s.display-name="PHP ${PHP_VERSION}" \
+    io.kubesphere.expose-services="9080:http" \
+    io.kubesphere.expose-services="9443:https" \
+    io.kubesphere.tags="builder,$NAME,$NAME$PHP_VERSION" \
+    io.kubesphere.s2i.scripts-url="image:///usr/libexec/s2i" \
+    io.s2i.scripts-url="image:///usr/libexec/s2i" \
+    io.kubesphere.dev-mode="DEV_MODE:false" \
+    io.kubesphere.deployments-dir="${APP_ROOT}/src" \
+    com.cloudify.dev-mode.port="DEBUG_PORT:5858"\
+    com.cloudify.component="${NAME}${PHP_VER_SHORT}-container" \
+    name="littleof/$NAME-${PHP_VER_SHORT}-centos7" \
+    version="${PHP_VERSION}" \
+    help="For more information visit https://github.com/littlezo/k8s-php-s2i.git" \
+    usage="s2i build https://github.com/littlezo/s2i-php-container.git --context-dir=${PHP_VERSION}/test/test-app littleof/${NAME}-${PHP_VER_SHORT}-centos7 sample-server" \
+    maintainer="@小小只^v^ <littlezov@qq.com>" \
+    com.label-schema.maintainer-url="https://github.com/littlezo" \
+    com.kubesphere.image.title="CentOS Base Image" \
+    com.cloudify.image.license="GPL v2.0" \
+    com.cloudify.image.created="${BUILD_DATE}"
+
+# 安装 PHP 环境
+
+RUN yum install -y centos-release-scl && \
+    INSTALL_PKGS="rh-php74 rh-php74-php-bcmath rh-php74-php-cli rh-php74-php-common rh-php74-php-dba \
+    rh-php74-php-dbg rh-php74-php-devel rh-php74-php-gd rh-php74-php-gmp rh-php74-php-intl rh-php74-php-json \
+    rh-php74-php-ldap rh-php74-php-mbstring rh-php74-php-mysqlnd rh-php74-php-pdo rh-php74-php-process \
+    rh-php74-php-pecl-apcu rh-php74-php-recode rh-php74-php-soap rh-php74-php-xml rh-php74-php-zip" && \
+    yum install -y libstdc++ openssl pcre-devel pcre2-devel openssl-devel supervisor unzip zlib-devel git wget \
+    --setopt=tsflags=nodocs $INSTALL_PKGS --nogpgcheck && \
+    rpm -V $INSTALL_PKGS && \
+    yum -y --setopt=tsflags=nodocs upgrade --nogpgcheck && \
+    yum -y clean all --enablerepo='*'
+
+# Redis 扩展下载 pecl本地安装 开启扩展
+RUN wget http://pecl.php.net/get/redis-${PHPREDIS_VERSION}.tgz -O /tmp/redis.tgz \
+    && pecl install /tmp/redis.tgz \
+    && rm -rf /tmp/redis.tgz
+
+# Swoole 扩展安装 开启扩展
+RUN wget https://github.com/swoole/swoole-src/archive/v${SWOOLE_VERSION}.tar.gz -O /tmp/swoole.tar.gz \
+    && mkdir -p /tmp/swoole \
+    && tar -xf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
+    && rm /tmp/swoole.tar.gz \
+    && ( \
+    cd /tmp/swoole \
+    && phpize \
+    && ./configure --enable-async-redis --enable-openssl --enable-http2 \
+    && make -j$(nproc) \
+    && make install \
+    ) \
+    && rm -r /tmp/swoole
+# 安装 Composer
+RUN wget -O /usr/local/bin/composer https://mirrors.aliyun.com/composer/composer.phar && \
+    chmod a+x /usr/local/bin/composer
+
+ENV PHP_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/php \
+    APP_DATA=${APP_ROOT} \
+    PHP_DEFAULT_INCLUDE_PATH=/opt/rh/rh-php74/root/usr/share/pear \
+    STI_SCRIPTS_URL=image:///usr/libexec/s2i \
+    STI_SCRIPTS_PATH=/usr/libexec/s2i \
+    PHP_SYSCONF_PATH=/etc/opt/rh/rh-php74 \
+    S2I_CONFIG_PATH=/app-src/src/deploy.json \
+    SCL_ENABLED=rh-php74
+
+ENV BASH_ENV=${APP_ROOT}/etc/scl_enable \
+    ENV=${APP_ROOT}/etc/scl_enable \
+    PROMPT_COMMAND=". ${APP_ROOT}/etc/scl_enable"
+
+# 拷贝陪着文件
+COPY ./root/app-src/etc/php.d/50-swoole.ini.template  ${PHP_SYSCONF_PATH}/php.d/50-swoole.ini
+COPY ./root/app-src/etc/php.d/99-redis.ini.template  ${PHP_SYSCONF_PATH}/php.d/99-redis.ini
+
+COPY ./s2i/bin/ ${STI_SCRIPTS_PATH}
+
+COPY ./root/ /
+
+RUN /usr/libexec/container-setup
+
+RUN chown -R 1001:0 ${APP_ROOT} && chmod -R ug+rwx ${APP_ROOT} && \
+    rpm-file-permissions
+
+USER 1001
+
+# Set the default CMD to print the usage of the language image
+CMD ${STI_SCRIPTS_PATH}/usage

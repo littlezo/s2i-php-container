@@ -8,8 +8,8 @@ EXPOSE 8080
 EXPOSE 8443
 
 ENV NAME=php \
-    PHP_VERSION=7.3 \
-    PHP_VER_SHORT=73 \
+    PHP_VERSION=7.4 \
+    PHP_VER_SHORT=74 \
     PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 
 ENV SUMMARY="Platform for building and running PHP ${PHP_VERSION} applications" \
