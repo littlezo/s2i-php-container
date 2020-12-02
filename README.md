@@ -136,3 +136,8 @@ Repository organization
 
             This script runs the [S2I](https://github.com/kubesphere/s2ioperator) test framework.
 
+推送 镜像到镜像仓库 修改 s2i-php-swoole.yaml 中的 defaultBaseImage 和 builderImage 为你的镜像地址 使用如下命令 推送模板到 kubesphere集群
+
+kubectl apply -f deploy/s2i-php-73-template.yaml
+kubectl apply -f deploy/s2i-php-74-template.yaml
+kubectl apply -f deploy/s2i-php-80-template.yaml

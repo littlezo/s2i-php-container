@@ -13,7 +13,7 @@ spec:
   containerInfo:
     - builderImage: littleof/php-80-centos8:8.0
   codeFramework: php # 代码框架类型
-  defaultBaseImage: littleof/php-7.3-centos8:8.0 # 默认使用的构建器镜像 (可替换为自定义的镜像)
+  defaultBaseImage: littleof/php-80-centos8:8.0 # 默认使用的构建器镜像 (可替换为自定义的镜像)
   version: 1.0.0 # 构建器模版的版本
   environment:
     - key: DB_HOST
